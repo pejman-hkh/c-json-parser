@@ -14,12 +14,12 @@ void jsonArrayInit( jsonArray *arr ) {
 }
 
 void jsonArrayInsert( jsonArray *arr, void *index, void *value ) {
-	void ** indexes = realloc(arr->indexes, sizeof(jsonArray) * (arr->length+1) );
+	void ** indexes = realloc(arr->indexes, sizeof(jsonArray) * (arr->length+2) );
 	if(indexes) {
 		arr->indexes = indexes;
 	}
 
-	void ** values = realloc(arr->values, sizeof(jsonArray) * (arr->length+1) );
+	void ** values = realloc(arr->values, sizeof(jsonArray) * (arr->length+2) );
 	if(values) {
 		arr->values = values;
 	}
@@ -52,11 +52,11 @@ void jsonArrayFree( jsonArray *arr ) {
 }
 
 void jsonSkipSpace() {
-	while( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n' ) ++jsonOffset;
+	while( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n'  || jsonStr[jsonOffset] == '\t' ) ++jsonOffset;
 }
 
 void *parseStr() {
-	char * buf = malloc(sizeof(char *));
+	char * buf = malloc(sizeof(char *) * 2048);
 	int i = 0;
 
 	while( !(jsonStr[jsonOffset] == '"' && jsonStr[jsonOffset-1] != '\\') ) {
@@ -85,7 +85,7 @@ void *parseStr() {
 	jsonOffset++;
 	jsonSkipSpace();
 
-	jsonArray *arr = malloc( sizeof(jsonArray *) );
+	jsonArray *arr = malloc( sizeof(jsonArray ) );
 	jsonArrayInit( arr );
 	arr->type = 1;
 	jsonArrayInsert( arr, "0", buf );
@@ -188,10 +188,11 @@ void *parseNumber() {
 
 	void *ret;
 	if( isDbl ) {
-		double d;
-		sscanf(val, "%lf", &d);
-		printf("%lf\n", d);
-		ret = (void *)(d * pow( 10, exp ));
+		double *d;
+		sscanf(val, "%lf", d);
+		//printf("%lf\n", d);
+		*d = (*d) * pow( 10, exp );
+		ret = (void *)d;
 		
 	}
 	else {

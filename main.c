@@ -30,13 +30,13 @@ char *fileGetContent( char *fname) {
 int main(int argc, char const *argv[])
 {
 
-	char *str1 = fileGetContent("test.txt");
+	char *str1 = fileGetContent( argv[1] );
 
 	JSON(json, str1);
 	printf("dump :");
 	dump1( json );
 
-	printf("\n\n");
+/*	printf("\n\n");
 	int number = JSONGET( json, "number");
 	printf("%d\n", number);
 
@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
 	printf("%d\n", boolean1);
 
 	char * null = JSONGET( json, "null");
-	printf("%s\n", null);
+	printf("%s\n", null);*/
 
 	JSONFREE(json);
 	free( str1 );
