@@ -1,1 +1,17 @@
-{"string":"ddddddd","number":123,"number1":123.23,"number2":12e-5,"boolean":true,"boolean1":false,"null":null}
+{
+  "array": [
+    1,
+    2,
+    3
+  ],
+  "boolean": true,
+  "color": "#82b92c",
+  "null": null,
+  "number": 123,
+  "object": {
+    "a": "b",
+    "c": "d",
+    "e": "f"
+  },
+  "string": "Hello World"
+}

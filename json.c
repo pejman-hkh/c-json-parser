@@ -52,7 +52,7 @@ void jsonArrayFree( jsonArray *arr ) {
 }
 
 void jsonSkipSpace() {
-	while( jsonStr[jsonOffset] == ' ' ) ++jsonOffset;
+	while( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n' ) ++jsonOffset;
 }
 
 void *parseStr() {
