@@ -6,13 +6,24 @@
 jsonOffset = 0;
 
 void jsonArrayInit( jsonArray *arr ) {
-	arr->indexes = malloc( sizeof(void *) * 4 );
-	arr->values = malloc( sizeof(void *) * 4 );
+	arr->indexes = malloc( sizeof(jsonArray) );
+	arr->values = malloc( sizeof(jsonArray) );
 	arr->length = 0;
 	arr->type = 0;
 }
 
 void jsonArrayInsert( jsonArray *arr, void *index, void *value ) {
+
+	void ** indexes = realloc(arr->indexes, sizeof(jsonArray) * (arr->length+1) );
+	if(indexes) {
+		arr->indexes = indexes;
+	}
+
+	void ** values = realloc(arr->values, sizeof(jsonArray) * (arr->length+1) );
+	if(values) {
+		arr->values = values;
+	}
+
 	arr->indexes[arr->length] = index;
 	arr->values[arr->length] = value;
 	arr->length++;
@@ -39,6 +50,9 @@ void jsonArrayFree( jsonArray *arr ) {
 	free(arr);
 }
 
+void jsonSkipSpace() {
+	while( jsonStr[jsonOffset] == ' ' ) ++jsonOffset;
+}
 
 void *parseStr() {
 	char * buf = malloc(sizeof(char *));
@@ -65,14 +79,17 @@ void *parseStr() {
 			buf[i++] = jsonStr[jsonOffset++];  
 		} 		
 	}
-	buf[i] = '\0';
+	buf[i++] = '\0';
 
 	jsonOffset++;
+	jsonSkipSpace();
+
 	jsonArray *arr = malloc( sizeof(jsonArray *) );
 	jsonArrayInit( arr );
 	arr->type = 1;
 	jsonArrayInsert( arr, "0", buf );
 
+	//printf("Str is %s\n", buf );
 	return (void *)arr;
 }
 
@@ -82,13 +99,14 @@ void *parseObject() {
 	arr->type = 2;
 	int i = 0;
 	while( 1 ) {
-		void *index = parser();
-		jsonOffset++;
 
+		void *index = parser();
+		jsonSkipSpace();
+		jsonOffset++;
 		void *val = parser();
 		jsonArrayInsert( arr, index, val );
 		i++;
-
+		jsonSkipSpace();
 		if( jsonStr[jsonOffset] == ',' ) {
 			jsonOffset++;
 			continue;
@@ -110,6 +128,7 @@ void *parseArray() {
 
 		jsonArrayInsert( arr, i, parser() );
 		i++;
+		jsonSkipSpace();
 		if( jsonStr[jsonOffset] == ',' ) {
 			jsonOffset++;
 			continue;
@@ -123,17 +142,19 @@ void *parseArray() {
 }
 
 void *parser() {
-
-	char *val;
-	int stm = jsonStr[jsonOffset++];
-	switch( stm ) {
+	jsonSkipSpace();
+	//printf("%c\n", jsonStr[jsonOffset]);
+	switch( jsonStr[jsonOffset] ) {
 		case '{' :
+			jsonOffset++;
 			return parseObject();
 			break;		
 		case '[' :
+			jsonOffset++;
 			return parseArray();
 			break;
 		case '"' :
+			jsonOffset++;
 			return parseStr();
 			break;
 	}
@@ -172,16 +193,18 @@ void dump1( jsonArray * arr ) {
 		jsonArray *l = arr->indexes[i];
 
 		if( arr->type == 3 ) {
-			printf("%d : ", l);
+			printf("\n[%d : ", l);
 		} else {
-			printf("%s : ", (char *)l->values[0]);
+			printf("\n[%s : ", (char *)l->values[0]);
 		}
 
 		jsonArray *v = arr->values[i];
 		if( v->type == 1 ) {
-			printf("%s\n", (char *)v->values[0] );
+			printf("%s", (char *)v->values[0] );
+			printf("]");
 		} else {
 			dump1( v );
+			printf("]");
 		}
 	}
 }

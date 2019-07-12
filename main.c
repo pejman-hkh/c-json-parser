@@ -1,25 +1,46 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "json.h"
+
+char *fileGetContent( char *fname) {
+	char * buffer = 0;
+	long length;
+	FILE * f = fopen (fname, "rb");
+
+	if (f)
+	{
+	  fseek (f, 0, SEEK_END);
+	  length = ftell (f);
+	  fseek (f, 0, SEEK_SET);
+	  buffer = malloc (length);
+	  if (buffer)
+	  {
+	    fread (buffer, 1, length, f);
+	  }
+	  fclose (f);
+	}
+
+	if (buffer)
+	{
+		return buffer;
+	}	
+}
 
 int main(int argc, char const *argv[])
 {
-	char *str1 = "{\"peji\":\"123\\n\",\"slm\":{\"aaa\":{\"yyyy\":\"rrrrrrrrr\"}},\"p\":[\"ttt\",\"ddd\"]}";
+
+	char *str1 = fileGetContent("test.txt");
 
 	JSON(json, str1);
 
-	jsonArray *peji = JSONGET(json, "peji");
-	jsonArray *slm = JSONGET(json, "slm");
-	jsonArray *aaa = JSONGET(slm, "aaa");
-	jsonArray *yyyy = JSONGET(aaa, "yyyy");
-
 	dump1( json );
-	printf("%s\n", peji);	
-	printf("%s\n", yyyy);	
+
+	jsonArray *object = JSONGET( json, "object");
+
 	JSONFREE(json);
-/*	printf("%s\n", JSONGET(slm, "aaa") );
-	printf("%s\n", yyyy);
-	printf("%s\n", peji);	
-*/
+	free( str1 );
+	//printf("%s\n", JSONGET( object, "a" ) );
+
 	return 0;
 }

@@ -7,6 +7,7 @@ typedef struct jsonArray
 	void **values;
 	int length;
 	int type;
+
 } jsonArray;
 
 char *jsonStr;
