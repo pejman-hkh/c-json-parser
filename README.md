@@ -3,16 +3,16 @@ C json parser
 
 # Sample Code
 ```c
-	char *str1 = fileGetContent("test.txt");
+char *str1 = fileGetContent("test.txt");
 
-	JSON(json, str1);
+JSON(json, str1);
 
-	dump1( json );
+dump1( json );
 
-	jsonArray *object = JSONGET( json, "object");
+jsonArray *object = JSONGET( json, "object");
 
-	JSONFREE(json);
-	free( str1 );
+JSONFREE(json);
+free( str1 );
 ```
 
 # Sample dump output
