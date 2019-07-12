@@ -1,1 +1,1 @@
-{ "boolean" : "true","color":"#82b92c","null":"null","number":"123","object":{"a":"b","c":"d","e":"f"},"string":"HelloWorld","array":["1","2","3"],"boolean1":"true","color1":"#82b92c","null1":"null","number1":"123","object1":{"a":"b","c":"d","e":"f"},"string1":"HelloWorld","array1":["1","2","3"]}
+{"string":"ddddddd","number":123,"number1":123.23,"number2":12e-5,"boolean":true,"boolean1":false,"null":null}

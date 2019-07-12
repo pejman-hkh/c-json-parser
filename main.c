@@ -33,14 +33,27 @@ int main(int argc, char const *argv[])
 	char *str1 = fileGetContent("test.txt");
 
 	JSON(json, str1);
-
+	printf("dump :");
 	dump1( json );
 
-	jsonArray *object = JSONGET( json, "object");
+	printf("\n\n");
+	int number = JSONGET( json, "number");
+	printf("%d\n", number);
+
+	char *string = JSONGET( json, "string");
+	printf("%s\n", string);
+
+	int boolean = JSONGET( json, "boolean");
+	printf("%d\n", boolean);
+
+	int boolean1 = JSONGET( json, "boolean1");
+	printf("%d\n", boolean1);
+
+	char * null = JSONGET( json, "null");
+	printf("%s\n", null);
 
 	JSONFREE(json);
 	free( str1 );
-	//printf("%s\n", JSONGET( object, "a" ) );
 
 	return 0;
 }
