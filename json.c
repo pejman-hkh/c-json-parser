@@ -52,14 +52,14 @@ void jsonArrayFree( jsonArray *arr ) {
 }
 
 void jsonSkipSpace() {
-	while( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n'  || jsonStr[jsonOffset] == '\t' ) ++jsonOffset;
+	while( ( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n'  || jsonStr[jsonOffset] == '\t' ) && jsonOffset < jsonLength ) ++jsonOffset;
 }
 
 void *parseStr() {
 	char * buf = malloc(sizeof(char *) * 2048);
 	int i = 0;
 
-	while( !(jsonStr[jsonOffset] == '"' && jsonStr[jsonOffset-1] != '\\') ) {
+	while( !(jsonStr[jsonOffset] == '"' && jsonStr[jsonOffset-1] != '\\') && jsonOffset < jsonLength ) {
 	
 		if(jsonStr[jsonOffset] == '\\') {
 		   switch(jsonStr[++jsonOffset]) {
@@ -99,11 +99,16 @@ void *parseObject() {
 	jsonArrayInit( arr );
 	arr->type = 2;
 	int i = 0;
-	while( 1 ) {
+	while( jsonOffset < jsonLength ) {
 
 		void *index = parser();
 		jsonSkipSpace();
-		jsonOffset++;
+
+		if( jsonStr[jsonOffset++] != ':' ) {
+			printf("Error expect : character \n" );
+			exit(0);
+		}
+
 		void *val = parser();
 		jsonArrayInsert( arr, index, val );
 		i++;
@@ -115,7 +120,8 @@ void *parseObject() {
 			jsonOffset++;
 			return (void *)arr;
 		} else {
-			break;
+			printf("Erorr expect , or } character \n");
+			exit(0);
 		}
 	}
 }
@@ -125,7 +131,7 @@ void *parseArray() {
 	jsonArray *arr = malloc( sizeof(jsonArray *)  );
 	jsonArrayInit( arr );
 	arr->type = 3;
-	while( 1 ) {
+	while( jsonOffset < jsonLength ) {
 
 		jsonArrayInsert( arr, (void *)i, parser() );
 		i++;
@@ -137,7 +143,8 @@ void *parseArray() {
 			jsonOffset++;
 			return (void *)arr;
 		} else {
-			break;
+			printf("Erorr expect , or ] character \n");
+			exit(0);
 		}
 	}
 }
@@ -246,6 +253,9 @@ void *parseAnother() {
 				ret = "";
 
 			break;
+		default:
+			printf("Error\n");
+			exit(0);
 	}
 
 	jsonArrayInsert( arr, "0", ret );
@@ -346,5 +356,6 @@ void dump1( jsonArray * arr ) {
 
 void * jsonParser( char * str ) {
 	jsonStr = str;
+	jsonLength = strlen( str );
 	return parser();
 }

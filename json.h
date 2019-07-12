@@ -12,6 +12,7 @@ typedef struct jsonArray
 
 char *jsonStr;
 int jsonOffset;
+int jsonLength;
 
 void jsonArrayInit( jsonArray *arr );
 
