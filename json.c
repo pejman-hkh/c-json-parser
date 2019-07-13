@@ -194,6 +194,7 @@ void *parseNumber() {
 
 		exp = strtol(expStr, &ptr, 10);
 	}
+	free(expStr);
 	--jsonOffset;
 
 	jsonArray *arr = malloc( sizeof(jsonArray *) );
@@ -221,7 +222,7 @@ void *parseNumber() {
 			ret = (void *)d;
 		}
 	}
-
+	free(val);
 	jsonArrayInsert( arr, "0", ret );
 	return (void *)arr;
 }
