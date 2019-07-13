@@ -111,6 +111,9 @@ void *parseObject() {
 	jsonArray *arr = malloc( sizeof(jsonArray *) );
 	jsonArrayInit( arr );
 	arr->type = 2;
+	if( jsonStr[jsonOffset] == '}' ) {
+		return arr;
+	}	
 	int i = 0;
 	while( jsonOffset < jsonLength ) {
 
@@ -144,6 +147,10 @@ void *parseArray() {
 	jsonArray *arr = malloc( sizeof(jsonArray *)  );
 	jsonArrayInit( arr );
 	arr->type = 3;
+	if( jsonStr[jsonOffset] == ']' ) {
+		return arr;
+	}
+
 	while( jsonOffset < jsonLength ) {
 
 		jsonArrayInsert( arr, (void *)i, parser() );
@@ -292,6 +299,12 @@ void *parser() {
 			jsonOffset++;
 			return parseStr();
 			break;
+		case ']' :
+			return parseArray();
+			break;	
+		case '}' :
+			return parseObject();
+			break;	
 		default :
 
 			if( ( jsonStr[jsonOffset] <= '9' && jsonStr[jsonOffset] >= '0' ) || jsonStr[jsonOffset] == '-' )

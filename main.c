@@ -36,7 +36,6 @@ int main(int argc, char const *argv[])
 	printf("dump :");
 	dump1( json );
 
-
 /*	printf("\n\n");
 	int number = JSONGET( json, "number");
 	printf("%d\n", number);
