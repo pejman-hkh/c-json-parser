@@ -9,7 +9,7 @@ JSON(json, str1);
 
 dump1( json );
 
-jsonArray *object = JSONGET( json, "object");
+json_array *object = JSONGET( json, "object");
 
 JSONFREE(json);
 free( str1 );
