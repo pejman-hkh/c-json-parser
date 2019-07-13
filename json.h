@@ -38,5 +38,6 @@ void * jsonParser( char *str );
 
 #define JSON(json, str) jsonArray *json = jsonParser( str )
 #define JSONGET(json, index) jsonArrayGet( json, index )
+#define JSONGET1(object, json, index) jsonArray *object = jsonArrayGet( json, index )
 #define JSONFREE(json) jsonArrayFree(json)
 #endif
