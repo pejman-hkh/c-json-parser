@@ -1,43 +1,35 @@
 #ifndef H_JSON
 #define H_JSON 1
 
-typedef struct jsonArray
+typedef struct json_array
 {
 	void **indexes; 
 	void **values;
 	int length;
 	int type;
 
-} jsonArray;
+} json_array;
 
-char *jsonStr;
-int jsonOffset;
-int jsonLength;
+char *json_string;
+int json_offset;
+int json_length;
 
-void jsonArrayInit( jsonArray *arr );
+void json_array_init( json_array *arr );
 
-void jsonArrayInsert( jsonArray *arr, void *index, void *value );
+void json_array_insert( json_array *arr, void *index, void *value );
 
-void jsonArrayFree( jsonArray *arr );
+void json_array_free( json_array *arr );
 
-void *parser();
+void *json_array_get( json_array *arr, void *index );
 
-void *parseStr();
+void dump1( json_array *arr );
 
-void *parseObject();
-
-void *parseArray();
+void * json_parser( char *str );
 
 void *parser();
 
-void *jsonArrayGet( jsonArray *arr, void *index );
-
-void dump1( jsonArray *arr );
-
-void * jsonParser( char *str );
-
-#define JSON(json, str) jsonArray *json = jsonParser( str )
-#define JSONGET(json, index) jsonArrayGet( json, index )
-#define JSONGET1(object, json, index) jsonArray *object = jsonArrayGet( json, index )
-#define JSONFREE(json) jsonArrayFree(json)
+#define JSON(json, str) json_array *json = json_parser( str )
+#define JSONGET(json, index) json_array_get( json, index )
+#define JSONGET1(object, json, index) json_array *object = json_array_get( json, index )
+#define JSONFREE(json) json_array_free(json)
 #endif

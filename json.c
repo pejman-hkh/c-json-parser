@@ -4,22 +4,22 @@
 #include <math.h>
 #include "json.h"
 
-jsonOffset = 0;
+json_offset = 0;
 
-void jsonArrayInit( jsonArray *arr ) {
-	arr->indexes = malloc( sizeof(jsonArray) );
-	arr->values = malloc( sizeof(jsonArray) );
+void json_array_init( json_array *arr ) {
+	arr->indexes = malloc( sizeof(json_array) );
+	arr->values = malloc( sizeof(json_array) );
 	arr->length = 0;
 	arr->type = 0;
 }
 
-void jsonArrayInsert( jsonArray *arr, void *index, void *value ) {
-	void ** indexes = realloc(arr->indexes, sizeof(jsonArray) * (arr->length+2) );
+void json_array_insert( json_array *arr, void *index, void *value ) {
+	void ** indexes = realloc(arr->indexes, sizeof(json_array) * (arr->length+2) );
 	if(indexes) {
 		arr->indexes = indexes;
 	}
 
-	void ** values = realloc(arr->values, sizeof(jsonArray) * (arr->length+2) );
+	void ** values = realloc(arr->values, sizeof(json_array) * (arr->length+2) );
 	if(values) {
 		arr->values = values;
 	}
@@ -29,9 +29,9 @@ void jsonArrayInsert( jsonArray *arr, void *index, void *value ) {
 	arr->length++;
 }
 
-void jsonArrayFree( jsonArray *arr ) {
+void json_array_free( json_array *arr ) {
 	for( int i = 0; i < arr->length; i++ ) {
-		jsonArray *l = arr->indexes[i];
+		json_array *l = arr->indexes[i];
 
 		if( arr->type != 3 ) {
 			free(l->values[0]);
@@ -40,9 +40,9 @@ void jsonArrayFree( jsonArray *arr ) {
 			free(l);
 		}
 
-		jsonArray *v = arr->values[i];
+		json_array *v = arr->values[i];
 		if( v->type == 2 || v->type == 3 ) {
-			jsonArrayFree( v );	
+			json_array_free( v );	
 		} else {
 			if( v->type == 1 || v->type == 6 ) {
 				free( v->values[0] );
@@ -58,24 +58,24 @@ void jsonArrayFree( jsonArray *arr ) {
 	free(arr);
 }
 
-void jsonSkipSpace() {
-	while( ( jsonStr[jsonOffset] == ' ' || jsonStr[jsonOffset] == '\n'  || jsonStr[jsonOffset] == '\t' ) && jsonOffset < jsonLength ) ++jsonOffset;
+void json_skip_space() {
+	while( ( json_string[json_offset] == ' ' || json_string[json_offset] == '\n'  || json_string[json_offset] == '\t' ) && json_offset < json_length ) ++json_offset;
 }
 
-void *parseStr() {
+void *json_parse_str() {
 	//printf("%d\n", sizeof(char *) );
 	int bufSize = sizeof(char) * 100;
 	char * buf = malloc(bufSize);
 	int i = 0;
 
-	while( !(jsonStr[jsonOffset] == '"' && jsonStr[jsonOffset-1] != '\\') && jsonOffset < jsonLength ) {
+	while( !(json_string[json_offset] == '"' && json_string[json_offset-1] != '\\') && json_offset < json_length ) {
 		if( i > bufSize ) {
 			bufSize = bufSize * 2;
 			buf = realloc( buf, bufSize );
 		}
 
-		if(jsonStr[jsonOffset] == '\\') {
-		   switch(jsonStr[++jsonOffset]) {
+		if(json_string[json_offset] == '\\') {
+		   switch(json_string[++json_offset]) {
 				case 'a': buf[i++] = '\a'; break;
 				case 'b': buf[i++] = '\b'; break;
 				case 'f': buf[i++] = '\f'; break;
@@ -87,53 +87,53 @@ void *parseStr() {
 				case '\"': buf[i++] = '\"'; break;
 				default:
 					buf[i++] = '\\';
-					buf[i++] = jsonStr[jsonOffset];
+					buf[i++] = json_string[json_offset];
 			}
 		} else {
-			buf[i++] = jsonStr[jsonOffset++];  
+			buf[i++] = json_string[json_offset++];  
 		} 		
 	}
 	buf[i++] = '\0';
 
-	jsonOffset++;
-	jsonSkipSpace();
+	json_offset++;
+	json_skip_space();
 
-	jsonArray *arr = malloc( sizeof(jsonArray ) );
-	jsonArrayInit( arr );
+	json_array *arr = malloc( sizeof(json_array ) );
+	json_array_init( arr );
 	arr->type = 1;
-	jsonArrayInsert( arr, "0", buf );
+	json_array_insert( arr, "0", buf );
 
 	//printf("Str is %s\n", buf );
 	return (void *)arr;
 }
 
-void *parseObject() {
-	jsonArray *arr = malloc( sizeof(jsonArray *) );
-	jsonArrayInit( arr );
+void *json_parse_object() {
+	json_array *arr = malloc( sizeof(json_array *) );
+	json_array_init( arr );
 	arr->type = 2;
-	if( jsonStr[jsonOffset] == '}' ) {
+	if( json_string[json_offset] == '}' ) {
 		return arr;
 	}	
 	int i = 0;
-	while( jsonOffset < jsonLength ) {
+	while( json_offset < json_length ) {
 
 		void *index = parser();
-		jsonSkipSpace();
+		json_skip_space();
 
-		if( jsonStr[jsonOffset++] != ':' ) {
+		if( json_string[json_offset++] != ':' ) {
 			printf("Error expect : character \n" );
 			exit(0);
 		}
 
 		void *val = parser();
-		jsonArrayInsert( arr, index, val );
+		json_array_insert( arr, index, val );
 		i++;
-		jsonSkipSpace();
-		if( jsonStr[jsonOffset] == ',' ) {
-			jsonOffset++;
+		json_skip_space();
+		if( json_string[json_offset] == ',' ) {
+			json_offset++;
 			continue;
-		} else if( jsonStr[jsonOffset] == '}' ) {
-			jsonOffset++;
+		} else if( json_string[json_offset] == '}' ) {
+			json_offset++;
 			return (void *)arr;
 		} else {
 			printf("Erorr expect , or } character \n");
@@ -142,25 +142,25 @@ void *parseObject() {
 	}
 }
 
-void *parseArray() {
+void *json_parse_array() {
 	int i = 0;
-	jsonArray *arr = malloc( sizeof(jsonArray *)  );
-	jsonArrayInit( arr );
+	json_array *arr = malloc( sizeof(json_array *)  );
+	json_array_init( arr );
 	arr->type = 3;
-	if( jsonStr[jsonOffset] == ']' ) {
+	if( json_string[json_offset] == ']' ) {
 		return arr;
 	}
 
-	while( jsonOffset < jsonLength ) {
+	while( json_offset < json_length ) {
 
-		jsonArrayInsert( arr, (void *)i, parser() );
+		json_array_insert( arr, (void *)i, parser() );
 		i++;
-		jsonSkipSpace();
-		if( jsonStr[jsonOffset] == ',' ) {
-			jsonOffset++;
+		json_skip_space();
+		if( json_string[json_offset] == ',' ) {
+			json_offset++;
 			continue;
-		} else if( jsonStr[jsonOffset] == ']' ) {
-			jsonOffset++;
+		} else if( json_string[json_offset] == ']' ) {
+			json_offset++;
 			return (void *)arr;
 		} else {
 			printf("Erorr expect , or ] character \n");
@@ -169,7 +169,7 @@ void *parseArray() {
 	}
 }
 
-void *parseNumber() {
+void *json_parse_number() {
 
 	char c;
 	int isDbl = 0;
@@ -178,7 +178,7 @@ void *parseNumber() {
 	int i = 0;
 	char *val = malloc(sizeof(char *));
 	while( 1 ) {
-		c = jsonStr[ jsonOffset++ ];
+		c = json_string[ json_offset++ ];
 
 		if( (c == '-') || (c >= '0' && c <= '9') )
 			val[i++] = c;
@@ -194,10 +194,10 @@ void *parseNumber() {
 	i = 0;
 	long exp = 0;
 	if( c == 'E' || c == 'e' ) {
-		c = jsonStr[ jsonOffset++ ];
-		if( c == '-' ){ ++jsonOffset; expStr[i++] = '-';}
+		c = json_string[ json_offset++ ];
+		if( c == '-' ){ ++json_offset; expStr[i++] = '-';}
 		while( 1 ) {
-			c = jsonStr[ jsonOffset++ ];
+			c = json_string[ json_offset++ ];
 			if( c >= '0' && c <= '9' )
 				expStr[i++]= c;
 			else
@@ -208,10 +208,10 @@ void *parseNumber() {
 		exp = strtol(expStr, &ptr, 10);
 	}
 	free(expStr);
-	--jsonOffset;
+	--json_offset;
 
-	jsonArray *arr = malloc( sizeof(jsonArray *) );
-	jsonArrayInit( arr );
+	json_array *arr = malloc( sizeof(json_array *) );
+	json_array_init( arr );
 	arr->type = 4;
 
 	void *ret;
@@ -235,40 +235,40 @@ void *parseNumber() {
 		}
 	}
 	free(val);
-	jsonArrayInsert( arr, "0", ret );
+	json_array_insert( arr, "0", ret );
 	return (void *)arr;
 }
 
-void getStr( char *strp, int end ) {
+void json_get_str( char *strp, int end ) {
 
 	int i = 0;
-	while( jsonOffset < end ) {
-		strp[i++] = jsonStr[jsonOffset++];
+	while( json_offset < end ) {
+		strp[i++] = json_string[json_offset++];
 	}
 	strp[i] = '\0';
 }
 
-void *parseAnother() {
-	jsonArray *arr = malloc( sizeof(jsonArray *) );
-	jsonArrayInit( arr );
+void *json_parse_another() {
+	json_array *arr = malloc( sizeof(json_array *) );
+	json_array_init( arr );
 	arr->type = 5;
 
 	void *ret;
 	char buf[6];
-	switch( jsonStr[jsonOffset] ) {
+	switch( json_string[json_offset] ) {
 		case 't' :
-			getStr( buf, jsonOffset + 4 );
+			json_get_str( buf, json_offset + 4 );
 			if( strcmp( buf, "true" ) == 0 )
 				ret = 1;
 			break;	
 		case 'f' :
-			getStr( buf, jsonOffset + 5 );
+			json_get_str( buf, json_offset + 5 );
 			if( strcmp( buf, "false" ) == 0 )
 				ret = 0;
 			
 			break;			  
 		case 'n':
-			getStr( buf, jsonOffset + 4 );
+			json_get_str( buf, json_offset + 4 );
 			if( strcmp( buf, "null" ) == 0 )
 				ret = "";
 
@@ -278,47 +278,47 @@ void *parseAnother() {
 			exit(0);
 	}
 
-	jsonArrayInsert( arr, "0", ret );
+	json_array_insert( arr, "0", ret );
 
 	return (void *)arr;
 }
 
 void *parser() {
-	jsonSkipSpace();
+	json_skip_space();
 
-	switch( jsonStr[jsonOffset] ) {
+	switch( json_string[json_offset] ) {
 		case '{' :
-			jsonOffset++;
-			return parseObject();
+			json_offset++;
+			return json_parse_object();
 			break;		
 		case '[' :
-			jsonOffset++;
-			return parseArray();
+			json_offset++;
+			return json_parse_array();
 			break;
 		case '"' :
-			jsonOffset++;
-			return parseStr();
+			json_offset++;
+			return json_parse_str();
 			break;
 		case ']' :
-			return parseArray();
+			return json_parse_array();
 			break;	
 		case '}' :
-			return parseObject();
+			return json_parse_object();
 			break;	
 		default :
 
-			if( ( jsonStr[jsonOffset] <= '9' && jsonStr[jsonOffset] >= '0' ) || jsonStr[jsonOffset] == '-' )
-				return parseNumber();
+			if( ( json_string[json_offset] <= '9' && json_string[json_offset] >= '0' ) || json_string[json_offset] == '-' )
+				return json_parse_number();
 			else
-				return parseAnother();			
+				return json_parse_another();			
 	}
 
 }
 
-void *jsonArrayGet( jsonArray * arr, void *index ) {
+void *json_array_get( json_array * arr, void *index ) {
 	for( int i = 0; i < arr->length; i++ ) {
-		jsonArray *l = arr->indexes[i];
-		jsonArray * v = arr->values[i];
+		json_array *l = arr->indexes[i];
+		json_array * v = arr->values[i];
 		if( arr->type == 3 ) {
 
 			if( l == index ) {
@@ -342,17 +342,17 @@ void *jsonArrayGet( jsonArray * arr, void *index ) {
 	return (void *)"";
 }
 
-void dump1( jsonArray * arr ) {
+void dump1( json_array * arr ) {
 
 	for( int i = 0; i < arr->length; i++ ) {
-		jsonArray *l = arr->indexes[i];
+		json_array *l = arr->indexes[i];
 		if( arr->type == 3 ) {
 			printf("\n[%d : ", l);
 		} else {
 			printf("\n[%s : ", (char *)l->values[0]);
 		}
 
-		jsonArray *v = arr->values[i];
+		json_array *v = arr->values[i];
 		if( v->type != 2 && v->type != 3 ) {
 			if( v->type == 5 ) {
 				if( v->values[0] == 0 ) {
@@ -382,8 +382,8 @@ void dump1( jsonArray * arr ) {
 }
 
 
-void * jsonParser( char * str ) {
-	jsonStr = str;
-	jsonLength = strlen( str );
+void * json_parser( char * str ) {
+	json_string = str;
+	json_length = strlen( str );
 	return parser();
 }
