@@ -63,11 +63,17 @@ void jsonSkipSpace() {
 }
 
 void *parseStr() {
-	char * buf = malloc(sizeof(char *) * 2048);
+	//printf("%d\n", sizeof(char *) );
+	int bufSize = sizeof(char) * 100;
+	char * buf = malloc(bufSize);
 	int i = 0;
 
 	while( !(jsonStr[jsonOffset] == '"' && jsonStr[jsonOffset-1] != '\\') && jsonOffset < jsonLength ) {
-	
+		if( i > bufSize ) {
+			bufSize = bufSize * 2;
+			buf = realloc( buf, bufSize );
+		}
+
 		if(jsonStr[jsonOffset] == '\\') {
 		   switch(jsonStr[++jsonOffset]) {
 				case 'a': buf[i++] = '\a'; break;
