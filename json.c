@@ -35,14 +35,21 @@ void jsonArrayFree( jsonArray *arr ) {
 
 		if( arr->type != 3 ) {
 			free(l->values[0]);
+			free(l->values);
+			free(l->indexes);
+			free(l);
 		}
 
 		jsonArray *v = arr->values[i];
 		if( v->type == 2 || v->type == 3 ) {
 			jsonArrayFree( v );	
 		} else {
-			if( v->type == 1 )
+			if( v->type == 1 ) {
 				free( v->values[0] );
+			}
+			free(v->indexes);
+			free(v->values);
+			free(v);
 		}
 	}
 
@@ -219,16 +226,13 @@ void *parseNumber() {
 	return (void *)arr;
 }
 
-char *getStr( int end ) {
+void getStr( char *strp, int end ) {
 
-	char * strp = malloc(sizeof(char *));
 	int i = 0;
 	while( jsonOffset < end ) {
 		strp[i++] = jsonStr[jsonOffset++];
 	}
 	strp[i] = '\0';
-
-	return strp;
 }
 
 void *parseAnother() {
@@ -237,19 +241,22 @@ void *parseAnother() {
 	arr->type = 5;
 
 	void *ret;
+	char buf[6];
 	switch( jsonStr[jsonOffset] ) {
 		case 't' :
-
-			if( strcmp( getStr( jsonOffset + 4 ), "true" ) == 0 )
+			getStr( buf, jsonOffset + 4 );
+			if( strcmp( buf, "true" ) == 0 )
 				ret = 1;
 			break;	
 		case 'f' :
-			if( strcmp( getStr( jsonOffset + 5 ), "false" ) == 0 )
+			getStr( buf, jsonOffset + 5 );
+			if( strcmp( buf, "false" ) == 0 )
 				ret = 0;
 			
 			break;			  
 		case 'n':
-			if( strcmp( getStr( jsonOffset + 4 ), "null" ) == 0 )
+			getStr( buf, jsonOffset + 4 );
+			if( strcmp( buf, "null" ) == 0 )
 				ret = "";
 
 			break;

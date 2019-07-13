@@ -30,11 +30,11 @@ void *parseArray();
 
 void *parser();
 
-void *jsonArrayGet( jsonArray * arr, void *index );
+void *jsonArrayGet( jsonArray *arr, void *index );
 
-void dump1( jsonArray * arr );
+void dump1( jsonArray *arr );
 
-void * jsonParser( char * str );
+void * jsonParser( char *str );
 
 #define JSON(json, str) jsonArray *json = jsonParser( str )
 #define JSONGET(json, index) jsonArrayGet( json, index )
