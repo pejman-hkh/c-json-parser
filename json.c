@@ -44,7 +44,7 @@ void jsonArrayFree( jsonArray *arr ) {
 		if( v->type == 2 || v->type == 3 ) {
 			jsonArrayFree( v );	
 		} else {
-			if( v->type == 1 ) {
+			if( v->type == 1 || v->type == 6 ) {
 				free( v->values[0] );
 			}
 			free(v->indexes);
@@ -209,12 +209,11 @@ void *parseNumber() {
 
 	void *ret;
 	if( isDbl ) {
-		double *d;
+		arr->type = 6;
+		double *d = malloc(sizeof(double *));
 		sscanf(val, "%lf", d);
-		//printf("%lf\n", d);
 		*d = (*d) * pow( 10, exp );
 		ret = (void *)d;
-		
 	}
 	else {
 		if( exp ) {
@@ -353,8 +352,10 @@ void dump1( jsonArray * arr ) {
 
 			} else if( v->type == 4 ) {
 				printf("%ld", (long)v->values[0]);
-			}
-			else
+			} else if( v->type == 6 ) {
+				double *a = (double *)v->values[0];
+				printf("%lf", *a );
+			} else
 				printf("%s", (char *)v->values[0] );
 			
 			printf("]");
