@@ -70,7 +70,7 @@ void *json_parse_str() {
 
 	while( !(json_string[json_offset] == '"' && json_string[json_offset-1] != '\\') && json_offset < json_length ) {
 		if( i > bufSize ) {
-			bufSize = bufSize * 2;
+			bufSize = (bufSize * 2) + 1;
 			buf = realloc( buf, bufSize );
 		}
 
